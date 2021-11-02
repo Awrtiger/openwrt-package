@@ -67,6 +67,7 @@ notify() {
         title="$(date '+%Y年%m月%d日') 京东签到"
     fi
     desc=$(cat ${LOG_FILE} | grep -E '签到号|签到概览|签到奖励|其他奖励|账号总计|其他总计' | sed 's/$/&\n/g')
+    bark_desc=$(cat ${LOG_FILE} | grep -E '签到号|签到概览|签到奖励|其他奖励|账号总计|其他总计' | sed ':a;N;s/\n/\\n/;ta;')
     #serverchan
     sckey=$(uci_get_by_type global serverchan)
     if [ ! -z $sckey ]; then
@@ -77,29 +78,21 @@ notify() {
         fi
         uclient-fetch -q --post-data="text=$title~&desp=$desc" $serverurl$sckey.send
     fi
-    
-    #Dingding
-    dtoken=$(uci_get_by_type global dd_token)
-    if [ ! -z $dtoken ]; then
-    	DTJ_FILE=/tmp/jd-djson.json
-	echo "{\"msgtype\": \"markdown\",\"markdown\": {\"title\":\"${title}\",\"text\":\"${title} <br/> ${desc}\"}}" > ${DTJ_FILE}
-    	uclient-fetch -q --post-file=/tmp/jd-djson.json "https://oapi.dingtalk.com/robot/send?access_token=${dtoken}"
-    fi
 
-    #telegram
-    TG_BOT_TOKEN=$(uci_get_by_type global tg_token)
-    TG_USER_ID=$(uci_get_by_type global tg_userid)
-    API_URL="https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage"
-    if [ ! -z $TG_BOT_TOKEN ] && [ ! -z $TG_USER_ID ]; then
-        text="*$title*
-        
-\`\`\`
-"$desc"
-===============================
-本消息来自京东签到插件 jd-dailybonus
-\`\`\`"
-        uclient-fetch -q --post-data="chat_id=$TG_USER_ID&text=$text&parse_mode=markdownv2" $API_URL
+    #Bark
+    btoken=$(uci_get_by_type global bark_token)
+    bsrv=$(uci_get_by_type global bark_srv)
+    bsound=$(uci_get_by_type global bark_sound)
+    bicon=$(uci_get_by_type global bark_icon)
+    blevel=$(uci_get_by_type global bark_level)
+    bgroup=$(uci_get_by_type global bark_group)
+    bisA=$(uci_get_by_type global bark_isA)
+    if [ ! -z $btoken ]; then
+        BTJ_FILE=/tmp/jd-bjson.json
+    echo "{\"device_key\": \"$btoken\",\"title\": \"$title\",\"body\": \"$bark_desc\",\"ext_params\": {\"icon\": \"$bicon\",\"isArchive\": \"$bisA\",\"level\": \"$blevel\",\"group\": \"$bgroup\"},\"sound\": \"$bsound\"}" > ${BTJ_FILE}
+	    wget -q --header="Content-Type: application/json" --post-file=/tmp/jd-bjson.json "$bsrv/push"
     fi
+    
 }
 
 run() {

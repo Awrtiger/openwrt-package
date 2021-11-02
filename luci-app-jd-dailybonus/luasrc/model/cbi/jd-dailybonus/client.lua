@@ -45,21 +45,39 @@ o = s:option(Value, 'serverchan', translate('Server酱 SCKEY'))
 o.rmempty = true
 o.description = translate('微信推送，基于Server酱服务，请自行登录 http://sc.ftqq.com/ 绑定并获取 SCKEY。')
 
--- Dingding
-
-o = s:option(Value, 'dd_token', translate('Dingding Bot Token'))
+-- Bark
+o = s:option(Value, 'bark_token', translate('Bark Token'))
 o.rmempty = true
-o.description = translate('创建一个群机器人并获取API Token，设置安全关键字为:京东')
+o.description = translate('Bark Token')
 
--- telegram
-
-o = s:option(Value, 'tg_token', translate('Telegram Bot Token'))
+o = s:option(Value, 'bark_srv', translate('Bark 服务器地址'))
 o.rmempty = true
-o.description = translate('首先在Telegram上搜索BotFather机器人，创建一个属于自己的通知机器人，并获取Token。')
+o.default = "https://api.day.app"
+o.description = translate('如https://your.domain:port 具体自建服务器设定参见：https://github.com/Finb/Bark')
 
-o = s:option(Value, 'tg_userid', translate('Telegram UserID'))
+o = s:option(Flag, 'bark_isA', translate('Bark 保存到记录'))
+o.default = 1
 o.rmempty = true
-o.description = translate('在Telegram上搜索getuserIDbot机器人，获取UserID。')
+
+o = s:option(Value, 'bark_group', translate('Bark 分组标识'))
+o.default = "京东每日签到"
+o.rmempty = true
+o:depends('bark_isA', '1')
+
+o = s:option(Value, 'bark_sound', translate('Bark 通知声音'))
+o.rmempty = true
+o.default = "silence.caf"
+o.description = translate('如silence.caf 具体设定参见：https://github.com/Finb/Bark/tree/master/Sounds')
+
+o = s:option(Value, 'bark_icon', translate('Bark 通知图标'))
+o.rmempty = true
+o.default = "http://day.app/assets/images/avatar.jpg"
+o.description = translate('(仅 iOS15 或以上支持) 如http://day.app/assets/images/avatar.jpg 具体设定参见：https://github.com/Finb/Bark#%E5%85%B6%E4%BB%96%E5%8F%82%E6%95%B0')
+
+o = s:option(Value, 'bark_level', translate('Bark 时效性通知'))
+o.rmempty = true
+o.default = "active"
+o.description = translate('可选参数值：active：不设置时的默认值，系统会立即亮屏显示通知。timeSensitive：时效性通知，可在专注状态下显示通知。passive：仅将通知添加到通知列表，不会亮屏提醒。')
 
 --Auto Run Script Service
 
